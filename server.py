@@ -1,7 +1,7 @@
 from wsgiref.simple_server import make_server
 from pyramid.config import Configurator
 from pyramid.response import Response
-from pyramid.httpexceptions import HTTPFound
+from pyramid.httpexceptions import HTTPFound, HTTPNoContent
 
 from opentelemetry.instrumentation.pyramid import PyramidInstrumentor
 from opentelemetry import trace
@@ -26,6 +26,9 @@ def hello_world(request):
 def redirect_view(Request):
     return HTTPFound(location='/')
 
+def empty_response(Request):
+    return HTTPNoContent()
+
 if __name__ == '__main__':
     with Configurator() as config:
         config.add_route('hello', '/')
@@ -34,6 +37,9 @@ if __name__ == '__main__':
 
         config.add_route('redirect_view', '/302')
         config.add_view(redirect_view, route_name='redirect_view')
+
+        config.add_route('empty_response', '/204')
+        config.add_view(empty_response, route_name='empty_response')
 
         app = config.make_wsgi_app()
     server = make_server('0.0.0.0', 6543, app)
